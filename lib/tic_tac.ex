@@ -3,16 +3,9 @@ defmodule TicTac do
   Documentation for `TicTac`.
   """
 
-  @doc """
-  Hello world.
+  alias TicTac.Game
 
-  ## Examples
-
-      iex> TicTac.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
+  def play(first_player), do: Game.start(first_player)
+  def o, do: play(:o)
+  def x, do: play(:x)
 end

@@ -1,27 +1,36 @@
-defmodule TicTac.Board do
+defmodule Board do
   alias __MODULE__
-  alias TicTac.Square
 
   @board_size 3
-  def board_size, do: @board_size
+  def size, do: @board_size
 
   @max_pos @board_size * @board_size
   def max_pos, do: @max_pos
 
-  defstruct [squares: []]
+  defstruct squares: []
+
+  def at(%Board{squares: squares}, n) when is_integer(n) do
+    Enum.at(squares, n - 1)
+  end
 
   def new do
     %Board{squares: Enum.map(1..@max_pos, &Square.new/1)}
   end
 
   def print(%Board{squares: squares}) do
+    IO.puts("")
+
     squares
-    |> Enum.chunk_every(3)
+    |> Enum.chunk_every(@board_size)
     |> Enum.each(&print_line/1)
+
+    IO.puts("")
   end
 
   def print_line(squares) do
-    if (hd squares).y > 1, do: IO.puts("-----------")
+    bars = String.duplicate("-", @board_size * 4 - 1)
+    if hd(squares).y > 1, do: IO.puts(bars)
+
     squares
     |> Enum.map(fn s -> s.val || " " end)
     |> Enum.join(" | ")
