@@ -7,6 +7,8 @@ defmodule Square do
   @enforce_keys [:pos]
   defstruct [:x, :y, :val, :pos]
 
+  def is_empty?(%Square{val: v}), do: !v
+
   def new(pos) when pos > 0 and pos <= @max_pos do
     %Square{pos: pos, y: y(pos), x: x(pos)}
   end

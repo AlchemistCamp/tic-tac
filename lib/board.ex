@@ -13,6 +13,10 @@ defmodule Board do
     Enum.at(squares, n - 1)
   end
 
+  def is_full?(%Board{squares: squares}) do
+    not Enum.any?(squares, &Square.is_empty?/1)
+  end
+
   def new do
     %Board{squares: Enum.map(1..@max_pos, &Square.new/1)}
   end

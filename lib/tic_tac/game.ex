@@ -6,14 +6,20 @@ defmodule TicTac.Game do
 
   defstruct [:board, :current_player, :winner, :move]
 
-  def end_turn(%Game{winner: winner, current_player: player} = game) do
-    if winner do
-      Board.print(game.board)
-      player_str = player |> to_string() |> String.upcase()
-      "Game over. #{player_str} is victorious!"
-    else
-      player = other_player(player)
-      main_loop(%Game{game | move: nil, current_player: player})
+  def end_turn(%Game{board: board, current_player: player} = game) do
+    case {game.winner, Board.is_full?(board)} do
+      {true, _} ->
+        Board.print(board)
+        player_str = player |> to_string() |> String.upcase()
+        "Game over. #{player_str} is victorious!"
+
+      {_, true} ->
+        Board.print(board)
+        "Game over. It's a tie."
+
+      _ ->
+        player = other_player(player)
+        main_loop(%Game{game | move: nil, current_player: player})
     end
   end
 
@@ -51,9 +57,7 @@ defmodule TicTac.Game do
     |> end_turn()
   end
 
-  def new(first_player) do
-    %Game{board: Board.new(), current_player: first_player}
-  end
+  def new(player1), do: %Game{board: Board.new(), current_player: player1}
 
   def other_player(:x), do: :o
   def other_player(:o), do: :x
@@ -71,37 +75,33 @@ defmodule TicTac.Game do
   end
 
   def win_check(%Game{} = game) do
-    has_winner =
-      line_check(game, :row) or
-        line_check(game, :col) or
-        line_check(game, :asc_right) or
-        line_check(game, :desc_left)
+    winner = check_lines(game, [:col, :row, :asc_diag, :desc_diag])
 
-    %Game{game | winner: has_winner}
+    %Game{game | winner: winner}
   end
 
   # Win check-related utilities
-  def line_check(%Game{} = game, direction) do
+  def check_line(%Game{} = game, direction) do
     get_line(game.board.squares, direction, game.move)
-    |> check_squares(game.current_player)
+    |> Enum.all?(fn square -> square.val == game.current_player end)
   end
 
-  def check_squares(squares, player) do
-    Enum.all?(squares, fn square -> square.val == player end)
+  def check_lines(%Game{} = game, directions) do
+    Enum.any?(directions, fn dir -> check_line(game, dir) end)
   end
 
   def col_filter(square, pos), do: square.x == Square.x(pos)
   def row_filter(square, pos), do: square.y == Square.y(pos)
-  def desc_left_filter(square), do: square.x - square.y == 0
-  def asc_right_filter(square), do: square.x + square.y == @board_size + 1
+  def asc_diag_filter(square), do: square.x + square.y == @board_size + 1
+  def desc_diag_filter(square), do: square.x - square.y == 0
 
   def get_line(squares, direction, pos) do
     filter =
       case direction do
         :col -> fn square -> col_filter(square, pos) end
         :row -> fn square -> row_filter(square, pos) end
-        :asc_right -> fn square -> asc_right_filter(square) end
-        :desc_left -> fn square -> desc_left_filter(square) end
+        :asc_diag -> fn square -> asc_diag_filter(square) end
+        :desc_diag -> fn square -> desc_diag_filter(square) end
       end
 
     Enum.filter(squares, filter)
