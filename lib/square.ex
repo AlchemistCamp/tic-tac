@@ -1,6 +1,4 @@
 defmodule Square do
-  alias __MODULE__
-
   @board_size Board.size()
   @max_pos Board.max_pos()
 
@@ -13,10 +11,7 @@ defmodule Square do
     %Square{pos: pos, y: y(pos), x: x(pos)}
   end
 
-  def x(%Square{pos: pos}), do: x(pos)
   def x(pos), do: rem(pos - 1, @board_size) + 1
-
-  def y(%Square{pos: pos}), do: y(pos)
   def y(pos), do: div(pos - 1, @board_size) + 1
 
   def update_at(squares, pos, value) do
