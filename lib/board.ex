@@ -1,6 +1,4 @@
 defmodule Board do
-  alias __MODULE__
-
   @board_size 3
   def size, do: @board_size
 

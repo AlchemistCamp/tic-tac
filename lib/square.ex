@@ -7,7 +7,7 @@ defmodule Square do
 
   def is_empty?(%Square{val: v}), do: !v
 
-  def new(pos) when pos > 0 and pos <= @max_pos do
+  def new(pos) when pos in 1..@max_pos do
     %Square{pos: pos, y: y(pos), x: x(pos)}
   end
 
