@@ -76,7 +76,6 @@ defmodule TicTac.Game do
 
   def win_check(%Game{} = game) do
     winner = check_lines(game, [:col, :row, :asc_diag, :desc_diag])
-
     %Game{game | winner: winner}
   end
 
@@ -90,18 +89,18 @@ defmodule TicTac.Game do
     Enum.any?(directions, fn dir -> check_line(game, dir) end)
   end
 
-  def col_filter(square, pos), do: square.x == Square.x(pos)
-  def row_filter(square, pos), do: square.y == Square.y(pos)
+  def make_col_filter(pos), do: fn s -> s.x == Square.x(pos) end
+  def make_row_filter(pos), do: fn s -> s.y == Square.y(pos) end
   def asc_diag_filter(square), do: square.x + square.y == @board_size + 1
   def desc_diag_filter(square), do: square.x - square.y == 0
 
   def get_line(squares, direction, pos) do
     filter =
       case direction do
-        :col -> fn square -> col_filter(square, pos) end
-        :row -> fn square -> row_filter(square, pos) end
-        :asc_diag -> fn square -> asc_diag_filter(square) end
-        :desc_diag -> fn square -> desc_diag_filter(square) end
+        :col -> make_col_filter(pos)
+        :row -> make_row_filter(pos)
+        :asc_diag -> &asc_diag_filter/1
+        :desc_diag -> &desc_diag_filter/1
       end
 
     Enum.filter(squares, filter)
